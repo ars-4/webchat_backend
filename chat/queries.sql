@@ -1,0 +1,8 @@
+CREATE DATABASE webchat;
+CREATE USER webchat WITH PASSWORD 'webchat';
+GRANT ALL PRIVILEGES ON DATABASE webchat TO webchat;
+GRANT USAGE,CREATE ON SCHEMA public TO webchat;
+CREATE TABLE logs(
+    id SERIAL PRIMARY KEY,
+    message TEXT
+);

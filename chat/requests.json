@@ -1,0 +1,60 @@
+{
+
+    "requests": [
+
+        {
+            "path": "/chat/login",
+            "method": "POST",
+            "body": {
+                "username": "String",
+                "password": "String"
+            },
+            "response": {
+                "message": "String",
+                "token": "String",
+                "error": "Boolean"
+            }
+        },
+
+        {
+            "path":"/chat/api/persons/",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Token token_key"
+            },
+            "body": {
+                "username": "String",
+                "password": "String",
+                "email": "String",
+                "first_name": "String",
+                "last_name": "String",
+                "address": "String",
+                "phone": "String"
+            },
+            "response": {
+                "message": "String",
+                "error": "Boolean",
+                "data": {
+                    "user_name": "String",
+                    "user_id": "Number",
+                    "email": "String",
+                    "name": "String",
+                    "address": "String",
+                    "phone": "String",
+                    "group_name": "String"
+                }
+            }
+        },
+
+        {
+            "path": "/ws/chats/room_name/",
+            "method": "WebSocket Connection",
+            "body": {
+                "message": "String"
+            }
+        }
+
+    ]
+
+}
