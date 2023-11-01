@@ -1,0 +1,9 @@
+django
+djangorestframework
+django-filter
+pillow
+django-cors-headers
+channels
+daphne
+channels_postgres
+requests

@@ -17,6 +17,7 @@ urlpatterns = [
     path('login/', views.login),
     path('validate_token/', views.validate_token),
     path('create_client/', views.create_client),
+    path('api/update_client/', views.update_client),
     path('api/', include(router.urls)),
 
     path('api/messages/<str:room_name>/', views.get_messages),

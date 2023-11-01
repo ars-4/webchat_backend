@@ -61,8 +61,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.channel_layer.group_add(self.browsing_room_group, self.channel_name)
         await self.channel_layer.group_add(self.status_room_group, self.channel_name)
-        if not user_token.user.username in online_users:
-            online_users.append(user_token.user.username)
+        if not any(user_token.user.username == user["username"] for user in online_users):
+            online_users.append({
+                "username": user_token.user.username,
+                "ip": ip_address,
+                "ua": self.user_agent_data,
+                "url": self.scope["client"][0]
+            })
         await self.channel_layer.group_send(self.status_room_group, {
             "type": "chat_status",
             "users": online_users
@@ -71,7 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = user_token.user
 
         await self.channel_layer.group_send(
-            self.browsing_room_group, {"type": "chat.browsing", "url": self.current_host, "token": token, "user": self.user.username, "timestamp": str(datetime.datetime.now()).split(".")[0], "msg_type": "none", "room": self.room_name, "ua": self.user_agent_data}
+            self.browsing_room_group, {"type": "chat.browsing", "url": self.current_host, "token": token, "user": self.user.username, "timestamp": str(datetime.datetime.now()).split(".")[0], "msg_type": "none", "room": self.room_name}
         )
         
         if user_token.user.groups.all()[0].name == "admin" or user_token.user.groups.all()[0].name == "employee":
@@ -80,7 +85,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        online_users.remove(self.user.username)
+        print(close_code)
+        user_to_remove = {
+            "username": self.user.username,
+            "ip": self.scope["client"][0],
+            "ua": self.user_agent_data,
+            "url": self.scope["client"][0]
+            }
+
+        if user_to_remove in online_users:
+            online_users.remove(user_to_remove)
         await self.channel_layer.group_send(self.status_room_group, {
             "type": "chat_status",
             "users": online_users
@@ -104,6 +118,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user = 'Anonymous'
         timestamp = str(datetime.datetime.now()).split(".")[0]
 
+        if "personal_name" in text_data_json:
+            token = text_data_json["token"]
+            user_token = await database_sync_to_async(Token.objects.get, thread_sensitive=True)(key=token)
+            user_token.user.first_name = text_data_json["personal_name"].split(" ")[0]
+            user_token.user.last_name = text_data_json["personal_name"].split(" ")[1]
+            user_token.user.save()
+            person = await database_sync_to_async(Person.objects.get, thread_sensitive=True)(user=user_token.user)
+            person.name = text_data_json["personal_name"]
+            person.save()
+        if "personal_email" in text_data_json:
+            token = text_data_json["token"]
+            user_token = await database_sync_to_async(Token.objects.get, thread_sensitive=True)(key=token)
+            user_token.user.email = text_data_json["personal_email"]
+            user_token.user.save()
+            person = await database_sync_to_async(Person.objects.get, thread_sensitive=True)(user=user_token.user)
+            person.email = text_data_json["personal_email"]
+            person.save()
 
         room = await database_sync_to_async(Room.objects.get, thread_sensitive=True)(name=self.room_name)
 
@@ -156,9 +187,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 room=room,
                 content=message
             ).save()
-        
-        ip_address = self.scope["client"][0]
-        user_agent_data = await get_user_agent(self.scope["headers"], ip_address)
 
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message", "message": message, "token": token, "user": user, "timestamp": timestamp, "room": self.room_name, "msg_type": "msg"}
@@ -167,7 +195,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.notification_room_group, {"type": "chat.notification", "message": message, "token": token, "user": user, "timestamp": timestamp, "room": self.notification_room, "msg_type": "msg"}
         )
         await self.channel_layer.group_send(
-            self.browsing_room_group, {"type": "chat.browsing", "url": url, "token": token, "user": user, "timestamp": timestamp, "msg_type": "none", "room": self.room_name, "ua": user_agent_data}
+            self.browsing_room_group, {"type": "chat.browsing", "url": url, "token": token, "user": user, "timestamp": timestamp, "msg_type": "none", "room": self.room_name}
         )
 
     async def chat_message(self, event):
@@ -199,7 +227,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_browsing(self, event):
         url = event["url"]
         token = event["token"]
-        user_agent_data = event["ua"]
 
         timestamp = str(datetime.datetime.now()).split(".")[0]
 
@@ -210,7 +237,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # ip_address = self.scope["client"][0]
         # self.user_agent_data = await get_user_agent(self.scope["headers"], ip_address)
 
-        await self.send(text_data=json.dumps({"url": url, "token": token, "user": user, "timestamp": timestamp, "msg_type": "none", "room": self.room_name, "ua": json.dumps(user_agent_data)}))
+        await self.send(text_data=json.dumps({"url": url, "token": token, "user": user, "timestamp": timestamp, "msg_type": "none", "room": self.room_name}))
 
 
     async def chat_status(self, event):
@@ -240,13 +267,13 @@ async def get_user_agent(all_headers, ip_address):
 
     try:
         # country = requests.get(f"https://api.country.is/{ip_address}").json()
-        country_name = requests.get(f"https://ipapi.co//{ip_address}/json/").json()["country_name"]
+        country_name = requests.get(f"https://ipapi.co//{ip_address}/json/", timeout=10).json()["country_name"]
         responseData["country"] = country_name
     except:
         responseData["country"] = country_name
 
     try:
-        res = requests.post("https://api.apicagent.com", headers=headers, json=data)
+        res = requests.post("https://api.apicagent.com", headers=headers, json=data, timeout=10)
         res = res.json()
         browser = res["client"]
         operating_system = res["os"]

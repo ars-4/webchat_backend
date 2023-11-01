@@ -146,7 +146,7 @@ def create_client(request):
         token = get_or_create_token(user)
         return Response({
             'message': 'Client created successfully!',
-            'data': {'token': token, 'username': user.username},
+            'data': {'token': token, 'username': user.username, 'name': f"{user.first_name} {user.last_name}", 'email': user.email},
             'error': 'false'
         }, status=201)
     except Exception as e:
@@ -158,13 +158,40 @@ def create_client(request):
 
 
 @api_view(['POST'])
+def update_client(request):
+    if not is_admin(request.user):
+        return Response({
+            'message': 'Unauthorized',
+            'data': None,
+            'error': 'true'
+        }, status=401)
+    else:
+        data = request.data
+        user = User.objects.get(id=data['id'])
+        person = Person.objects.get(user=user)
+        person.name = data['name']
+        person.email = data['email']
+        user.first_name = data['name'].split(' ')[0]
+        user.last_name = data['name'].split(' ')[1]
+        user.email = data['email']
+        user.save()
+        person.save()
+        return Response({
+            'message': 'Client updated successfully!',
+            'data': None,
+            'error': 'false'
+        }, status=200)
+
+
+@api_view(['POST'])
 def validate_token(request):
     token = request.data['token']
     try:
         user = Token.objects.get(key=token).user
         return Response({
             'message': 'Token validated successfully!',
-            'data': {'username': user.username},
+            'data': {'username': user.username,
+                     'name': f"{user.first_name} {user.last_name}", 'email': user.email},
             'error': 'false'
         })
     except Exception as e:
