@@ -6,12 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_SECRET_KEY = 'django-insecure-!s9irz)=$(tqjxq7k$)1fxbs)kas73rjwk9j+$^hiy-(^1zq_2'
 SECRET_KEY = os.environ.get('SECRET_KEY', default=DEFAULT_SECRET_KEY)
 
-DEBUG = 'RENDER' not in os.environ
+DEBUG = False
 
-ALLOWED_HOSTS = []
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,10 +67,10 @@ REST_FRAMEWORK = {
     ],
 }
 
-DB_NAME = 'webchat'
-DB_USER = 'webchat'
-DB_PASSWORD = 'webchat'
-DB_HOST = 'webchat'
+DB_NAME = os.environ.get('DB_NAME')
+DB_USER = os.environ.get('DB_USER')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = os.environ.get('DB_HOST')
 
 
 DATABASES = {
