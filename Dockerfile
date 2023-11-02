@@ -2,11 +2,11 @@ FROM python:3
 
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY poetry.lock pyproject.toml /usr/src/app/
+COPY poetry.lock pyproject.toml .
 
-RUN pip3 install poetry
+RUN pip3 install poetry install --no-root --no-cache --no-interaction
 
 RUN poetry install
 
