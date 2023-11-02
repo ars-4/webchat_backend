@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  web:
+    image: "webchat:dev"
+build:
+      target: development_build
+      context: .
+      cache_from:
+        - "webchat:dev"
+        - "webchat:latest"
+        - "*"
+      args:
+        DJANGO_ENV: development
+    command: daphne -b 0.0.0.0 -p 8001 WebChat.asgi:application
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
