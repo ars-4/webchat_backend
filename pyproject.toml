@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "webchat"
+version = "0.1.0"
+description = ""
+authors = ["ars-4 <ars7.dev@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "4.1.11"
+django-cors-headers = "4.2.0"
+django-filter = "23.3"
+pillow = "10.0.1"
+channels = {extras = ["daphne"], version = "^4.0.0"}
+channels-postgres = "^0.0.5"
+djangorestframework = "^3.14.0"
+requests = "^2.31.0"
+whitenoise = {extras = ["brotli"], version = "^6.6.0"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

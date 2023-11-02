@@ -3,11 +3,15 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-!s9irz)=$(tqjxq7k$)1fxbs)kas73rjwk9j+$^hiy-(^1zq_2'
+DEFAULT_SECRET_KEY = 'django-insecure-!s9irz)=$(tqjxq7k$)1fxbs)kas73rjwk9j+$^hiy-(^1zq_2'
+SECRET_KEY = os.environ.get('SECRET_KEY', default=DEFAULT_SECRET_KEY)
 
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -29,6 +33,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,17 +63,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'WebChat.wsgi.application'
 
-DATABASES = {
-    'default': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'webchat',
-		'USER': 'webchat',
-		'PASSWORD': 'webchat',
-		'HOST': 'localhost',
-		'PORT': '5432',
-	}
-}
-
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -76,15 +70,31 @@ REST_FRAMEWORK = {
     ],
 }
 
+DB_NAME = 'webchat'
+DB_USER = 'webchat'
+DB_PASSWORD = 'webchat'
+DB_HOST = 'webchat'
+
+
+DATABASES = {
+    'default': {
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		'NAME': DB_NAME,
+		'USER': DB_USER,
+		'PASSWORD': DB_PASSWORD,
+		'HOST': DB_HOST,
+		'PORT': '5432',
+	}
+}
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_postgres.core.PostgresChannelLayer',
         'CONFIG': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'webchat',
-            'USER': 'webchat',
-            'PASSWORD': 'webchat',
-            'HOST': 'localhost',
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
             'PORT': '5432',
         },
     },
@@ -118,7 +128,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
