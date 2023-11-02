@@ -1,12 +1,18 @@
-FROM python:3
-
-ENV PYTHONUNBUFFERED 1
+FROM python:3.7
 
 # WORKDIR /usr/src/app
 
-# COPY poetry.lock pyproject.toml
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libssl-dev \
+    libpcre3-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install poetry install --no-root --no-cache --no-interaction
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+COPY poetry.lock poetry.lock
+COPY pyproject.toml pyproject.toml
 
 RUN poetry install
 
