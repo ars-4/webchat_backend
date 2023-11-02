@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sSL https://install.python-poetry.org | python3 -
-
 COPY poetry.lock poetry.lock
 COPY pyproject.toml pyproject.toml
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+COPY . .
 
 RUN poetry install
 
