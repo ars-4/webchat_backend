@@ -1,21 +1,19 @@
+# Use an official Python runtime as a parent image
 FROM python:3.7
 
-# WORKDIR /usr/src/app
+# Set the working directory to /app
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libssl-dev \
-    libpcre3-dev \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-COPY poetry.lock poetry.lock
-COPY pyproject.toml pyproject.toml
+# Install any needed packages specified in requirements.txt
+RUN pip install django djangorestframework django-cors-headers django-filter pillow requests
+RUN pip install -U channels[daphne]
+RUN pip install channels_postgres
 
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
-COPY . .
-
-RUN poetry install
-
-CMD ["poetry", "run", "daphne", "-b", "0.0.0.0", "-p", "8000", "WebChat.asgi:application"]
+# Define the command to run your application
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "WebChat.asgi:application"]
