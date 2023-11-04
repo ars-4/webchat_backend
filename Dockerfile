@@ -19,4 +19,4 @@ RUN pip install channels_postgres
 EXPOSE 8001
 
 # Define the command to run your application
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8002", "WebChat.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "WebChat.asgi:application"]
