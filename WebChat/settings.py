@@ -75,24 +75,26 @@ DB_HOST = os.environ.get('DB_HOST')
 
 DATABASES = {
     'default': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': DB_NAME,
-		'USER': DB_USER,
-		'PASSWORD': DB_PASSWORD,
-		'HOST': DB_HOST,
-		'PORT': '5432',
+		'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'webchat',
+        'USER': 'ars-1',
+        'PASSWORD': '3cophaIPt4mW',
+        'HOST': 'ep-white-breeze-64367457.us-east-2.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {'sslmode': 'require'},
 	}
 }
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_postgres.core.PostgresChannelLayer',
         'CONFIG': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': DB_NAME,
-            'USER': DB_USER,
-            'PASSWORD': DB_PASSWORD,
-            'HOST': DB_HOST,
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'webchat',
+            'USER': 'ars-1',
+            'PASSWORD': '3cophaIPt4mW',
+            'HOST': 'ep-white-breeze-64367457.us-east-2.aws.neon.tech',
             'PORT': '5432',
+            'OPTIONS': {'sslmode': 'require'},
         },
     },
 }
@@ -125,9 +127,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
