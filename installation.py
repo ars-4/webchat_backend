@@ -1,18 +1,12 @@
-from chat.models import Person, User
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
+from chat.models import Person
 
-super_user = User.objects.create_superuser(
-    username='admin',
-    password='qwerty@234',
-    email='null',
-    first_name='null',
-    last_name='null'
-)
+super_user = User.objects.create_superuser('admin', 'admin@thissite.org', 'Qwerty@234')
 super_user.save()
 person = Person.objects.create(
     user=super_user, profile_picture=None,
-    name=super_user.first_name + ' ' + super_user.last_name,
-    email=super_user.email, ip_address='127.0.0.1',
+    name='Administrator',
+    email='admin@thissite.org', ip_address='127.0.0.1',
     address='Planet Earth', phone='null'
 )
 person.save()
