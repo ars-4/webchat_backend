@@ -1,4 +1,4 @@
-from chat.core.models import Person, User
+from chat.models import Person, User
 from django.contrib.auth.models import Group
 
 super_user = User.objects.create_superuser(
