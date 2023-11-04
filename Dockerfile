@@ -17,7 +17,7 @@ RUN pip install channels_postgres
 
 RUN python manage.py migrate
 # RUN python manage.py collectstatic
-RUN python installation.py
+# RUN python installation.py
 
 # Make port 8000 available to the world outside this container
 EXPOSE 8001
