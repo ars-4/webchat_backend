@@ -11,7 +11,7 @@ COPY . /app
 # RUN pip install virtualenv
 # RUN virtualenv venv
 # RUN source venv/bin/activate
-RUN pip install django djangorestframework django-cors-headers django-filter pillow requests
+RUN pip install django djangorestframework django-cors-headers django-filter pillow requests whitenoise
 RUN pip install -U channels[daphne]
 RUN pip install channels_postgres
 
