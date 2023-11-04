@@ -15,6 +15,10 @@ RUN pip install django djangorestframework django-cors-headers django-filter pil
 RUN pip install -U channels[daphne]
 RUN pip install channels_postgres
 
+RUN python manage.py migrate
+RUN python manage.py collectstatic
+RUN python installation.py
+
 # Make port 8000 available to the world outside this container
 EXPOSE 8001
 
