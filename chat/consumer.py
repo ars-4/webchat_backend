@@ -85,14 +85,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        print(close_code)
         user_to_remove = {
             "username": self.user.username,
             "ip": self.scope["client"][0],
             "ua": self.user_agent_data,
             "url": self.scope["client"][0]
             }
-
         if user_to_remove in online_users:
             online_users.remove(user_to_remove)
         await self.channel_layer.group_send(self.status_room_group, {
@@ -103,7 +101,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.notification_room_group, self.channel_name)
         await self.channel_layer.group_discard(self.browsing_room_group, self.channel_name)
         await self.close()
-        print(F"{self.user.username}:{self.user_agent_data} disconnected from {self.room_group_name}")
+        print(F"{self.user.username}:{self.user_agent_data} disconnected from {self.room_group_name}, status_code: {close_code}")
 
 
     # Receive message from WebSocket
@@ -267,7 +265,7 @@ async def get_user_agent(all_headers, ip_address):
 
     try:
         # country = requests.get(f"https://api.country.is/{ip_address}").json()
-        country_name = requests.get(f"https://ipapi.co//{ip_address}/json/", timeout=10).json()["country_name"]
+        country_name = requests.get(f"https://ipapi.co/json/", timeout=10).json()["country_name"]
         responseData["country"] = country_name
     except:
         responseData["country"] = country_name
