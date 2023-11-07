@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
         ),
     ]
 
-
+"""
 super_user = User.objects.create_superuser('admin', 'admin@thissite.org', 'Qwerty@234')
 super_user.save()
 person = Person.objects.create(
@@ -127,3 +127,4 @@ group_client = Group.objects.create(name='client')
 group_client.save()
 
 super_user.groups.add(group_admin)
+"""
