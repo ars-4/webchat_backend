@@ -19,9 +19,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"chat_{self.room_name}"
         self.current_room = None
 
-        ip_addresses = await database_sync_to_async(list)(Origin.objects.filter(access=False, accessor_type="ip"))
-        if self.scope["client"][0] in ip_addresses:
-            self.close(code=400)
+        # ip_addresses = await database_sync_to_async(list)(Origin.objects.filter(access=False, accessor_type="ip"))
+        # if self.scope["client"][0] in ip_addresses:
+        #     self.close(code=400)
 
         self.notification_room = "notifications"
         self.notification_room_group = "chat_notifications"
